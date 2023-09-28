@@ -1,0 +1,64 @@
+Test.txt of Homework Assignment 1
+------------------------------------------
+This file describes about the crashes and hang cases found in the giftcardreader code.
+
+crash1.gft
+
+
+Bug:
+
+When generating a gift card, supplying a high value (e.g., 4000000000) for datalength causes the program's ret_val->num_bytes to interpret this value negatively. This is due to C language's handling of signed and large integers.
+This negative interpretation subsequently leads ptr = malloc(ret_val->num_bytes) to assign a NULL value to ptr. Consequently, the subsequent code fread(ptr, ret_val->num_bytes, 1, input_fd) results in a "Segmentation Fault" as it tries to reference a NULL pointer.
+Fix:
+
+A check should be implemented for the datalen value read from the gift card. If this value is negative, memory allocation should be skipped, and the user should be notified that the gift card is invalid
+
+Fix:
+- By checking the value of the datalen which is read from the giftcard, and if the value is negative then do not allocate the memory and report to user about not a valid giftcard.
+- lines added in code after following line:
+>fread(&ret_val->num_bytes, 4,1, input_fd);
+Added lines:
+> if (ret_val->num_bytes < 0) {
+	printf("Please enter valid giftcard values");
+		exit(0);
+  }
+
+-------------------------------------
+
+crash2.gft
+
+
+Bug:
+
+In the record type 3, there's a function that calls an emulated assembly function. Here, register values are initialized from 0 to 15, giving a total of 16 registers. However, when the program tries to access registers outside this range, specifically in the case of \0x01, it attempts to initialize a register value beyond the allocated bounds, leading to a "Segmentation Fault".
+To exploit this bug, users can create a gift card containing the program data value "\x01\x2f". This data is then passed to arg1. As per the code segment:
+> case 0x01:
+        regs[arg1] = *mptr;
+the program will attempt to access and initialize an out-of-bound register, causing a "Segmentation Fault".
+
+Fix:
+
+A preventive measure can be added before the initialization of the register value within the \0x01 case in the giftcardreader software to handle this vulnerability.
+Modify the above code line as below:
+> case 0x01:
+        if(arg1>= 0 && arg1<=15){
+            regs[arg1] = *mptr;
+        }
+        break;
+- This will only allow the in-bound register values to be accessed.
+
+--------------------------------------
+
+hang.gft
+
+
+Bug:
+
+Within record type 3, there's a function that triggers an emulated assembly function. Passing \x09\xfd, i.e., crafting a gift card with this program value, causes the program to enter an endless loop, freezing it.
+This behavior arises because, although arg1 is defined as an unsigned char, it's cast to a signed char in the \0x09 switch case.
+When a user-formulated gift card has the program value "\x09\xfd", the pc value is set to 0x09, and arg1 to \xfd (253) within the giftcardreader. Due to its casting as a signed int, the value passed to pc becomes -3. After exiting the switch case, pc gets incremented by 3, resetting its value to zero. This leads to pc being re-assigned the \xfd value, and the loop keeps repeating endlessly.
+Fix:
+
+A solution involves a modification in the 0x09 switch case. The code should be adjusted to:
+pc += (unsigned char)arg1;
+This entails casting arg1 as an unsigned char before adding it to pc, rather than converting it to a signed char.
