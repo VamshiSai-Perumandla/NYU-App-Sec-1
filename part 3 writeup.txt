@@ -22,15 +22,11 @@ Coverage: 73.10%
 
 3.fuzzer1.gft:
 
-This fuzzer fails due to arg1 and arg 2 values. Then arg1 and arg 2 values are out of the register bound of 0 to 16. 
-It access memory that is not in the bounds and this would affect pother storage location that is stored at those locations. 
-to resolve this we do bound checks on arg11 and arg2. 
+The failure of this fuzzer arises from the arg1 and arg2 values exceeding the register limit of 0 to 16. It attempts to access memory outside the designated limits, potentially impacting other data stored at those addresses. To address this, boundary checks are implemented for arg1 and arg2.
 
 4.fuzzer2.gft:
 
-This fuzzer test case fails due to arg1 being out of the char range when the following commands are run "0x03, 0x09, 0x10"
-This is because the arg1 is explicitly type casted into char and this looses the precision if it is outside the char range specially negative values. 
-To ignore the negative overflow values we type cast the arg1 into unsigned char and this would resolve this issue. 
+The fuzzer test case encounters an error when arg1 falls outside the character range during the execution of commands "0x03, 0x09, 0x10". The issue stems from arg1 being forcefully type-casted to a char, which can lead to precision loss, particularly with negative values. By type-casting arg1 to an unsigned char, we can prevent negative overflow and rectify the problem.
 
 After deploying these fuzzer testcases, we achieved:
 Coverage: 83.5% 
