@@ -8,8 +8,6 @@ In order to address sections of the code that remained uncovered, we crafted two
 1. cov1.gft:
 
 The initial Part 2 testcases covered record types 2 & 3. Thus, code associated with record type 1 wasn't explored. We designed cov1.gft targeting this record type, specifically the segment within the gift_card_json() function:
-rust
-Copy code
 if (gcrd_ptr->type_of_record == 1) {
    ...
 }
@@ -25,11 +23,11 @@ Coverage: 73.10%
 3. fuzzer1.gft:
 
 This testcase, generated via fuzzing, triggers the switch case \0x04. Specifically, it attempts an out-of-bounds register access by supplying an arg2 value beyond 15. We inserted a validation mechanism here; if arg2 falls between 0 to 15, initialization proceeds; else, an invalid value notification is relayed.
+
 4. fuzzer2.gft:
 
 Another product of fuzzing, this testcase enacts the \0x10 switch case, culminating in an endless loop. The culprit: a gift card data value too hefty, relayed to the giftcardreader within the animate function’s arg1. Consequently, this enters an infinite loop due to its interaction with the program counter (pc). The remedy entailed tweaking the \0x10 switch case as:
-arduino
-Copy code
+
 if (zf) pc += (unsigned char)arg1;
 This ensures a steady pc increment, breaking the loop after a certain threshold.
 
