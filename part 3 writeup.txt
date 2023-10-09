@@ -20,8 +20,6 @@ The Part 2 testcases didn’t touch upon switch cases beyond \0x01 and \0x09. To
 The aftermath of this addition:
 Coverage: 73.10%
 
-BUG REPORT
-
 fuzzer1.gft
 
 Reference: The line numbers mentioned are based on the current commit.
