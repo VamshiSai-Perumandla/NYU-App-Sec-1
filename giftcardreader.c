@@ -35,7 +35,7 @@ void animate(char *msg, unsigned char *program) {
             case 0x00:
                 break;
             case 0x01:
-		        if (arg1 >= 0 && arg1 <= 15) regs[arg1] = *mptr;
+		if (arg1 >= 0 && arg1 <= 15) regs[arg1] = *mptr;
                 break;
             case 0x02:
                 *mptr = regs[arg1];
