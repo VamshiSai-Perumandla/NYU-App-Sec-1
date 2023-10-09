@@ -20,16 +20,17 @@ The Part 2 testcases didn’t touch upon switch cases beyond \0x01 and \0x09. To
 The aftermath of this addition:
 Coverage: 73.10%
 
-3. fuzzer1.gft:
+3.fuzzer1.gft:
 
-This testcase, generated via fuzzing, triggers the switch case \0x04. Specifically, it attempts an out-of-bounds register access by supplying an arg2 value beyond 15. We inserted a validation mechanism here; if arg2 falls between 0 to 15, initialization proceeds; else, an invalid value notification is relayed.
+This fuzzer fails due to arg1 and arg 2 values. Then arg1 and arg 2 values are out of the register bound of 0 to 16. 
+It access memory that is not in the bounds and this would affect pother storage location that is stored at those locations. 
+to resolve this we do bound checks on arg11 and arg2. 
 
-4. fuzzer2.gft:
+4.fuzzer2.gft:
 
-Another product of fuzzing, this testcase enacts the \0x10 switch case, culminating in an endless loop. The culprit: a gift card data value too hefty, relayed to the giftcardreader within the animate function’s arg1. Consequently, this enters an infinite loop due to its interaction with the program counter (pc). The remedy entailed tweaking the \0x10 switch case as:
-
-if (zf) pc += (unsigned char)arg1;
-This ensures a steady pc increment, breaking the loop after a certain threshold.
+This fuzzer test case fails due to arg1 being out of the char range when the following commands are run "0x03, 0x09, 0x10"
+This is because the arg1 is explicitly type casted into char and this looses the precision if it is outside the char range specially negative values. 
+To ignore the negative overflow values we type cast the arg1 into unsigned char and this would resolve this issue. 
 
 After deploying these fuzzer testcases, we achieved:
 Coverage: 83.5% 
