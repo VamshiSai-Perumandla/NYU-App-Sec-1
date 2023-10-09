@@ -20,13 +20,39 @@ The Part 2 testcases didn’t touch upon switch cases beyond \0x01 and \0x09. To
 The aftermath of this addition:
 Coverage: 73.10%
 
-3.fuzzer1.gft:
+BUG REPORT
 
-The failure of this fuzzer arises from the arg1 and arg2 values exceeding the register limit of 0 to 16. It attempts to access memory outside the designated limits, potentially impacting other data stored at those addresses. To address this, boundary checks are implemented for arg1 and arg2.
+fuzzer1.gft
 
-4.fuzzer2.gft:
+Reference: The line numbers mentioned are based on the current commit.
 
-The fuzzer test case encounters an error when arg1 falls outside the character range during the execution of commands "0x03, 0x09, 0x10". The issue stems from arg1 being forcefully type-casted to a char, which can lead to precision loss, particularly with negative values. By type-casting arg1 to an unsigned char, we can prevent negative overflow and rectify the problem.
+Error Description:
+The giftcardreader encountered the error:
+"*** stack smashing detected ***: terminated
+Aborted (core dumped)."
+
+This suggests a probable buffer overflow exploit within the source.
+Identified Bug:
+Utilizing gdb for debugging, it was found that the overflow was triggered due to an absence of bounds checking within the switch case block at case '0x04' (found on line 43). Here, arg2 exceeded its permissible range with a value of 30 while arg1 held a value of 1. This resulted in overwriting memory addresses that should remain untouched.
+
+Solution:
+To rectify this, a bounds check was introduced for arg2 (on line 43) using the condition: "if (arg2 >= 0 && arg2 <= 15)".
+
+fuzzer2.gft
+
+Error Description:
+The giftcardreader reported an error:
+"Segmentation fault (core dumped)."
+
+This likely stems from an attempt by the program to read a memory segment that's off-limits.
+Identified Bug:
+A deeper inspection with gdb revealed that the software was trying to access non-existent memory. A full backtrace (using "bt full") highlighted the root cause: the 'message' parameter was referencing an unreachable address. Two specific issues were noted:
+'string = 0x8948c8458b48ffff <error: Cannot access memory at address 0x8948c8458b48ffff>'
+'grouping = 0xffffffffffffffff <error: Cannot access memory at address 0xffffffffffffffff>'
+The executable (fuzzer2.gft) frequently executes the animate function, notably during case '0x03', altering the mptr pointer repeatedly. A missing bounds check on mptr was identified, given that mptr points to msg, which is constrained to 32 bytes as specified.
+
+Solution:
+To remedy this, a bounds check for mptr was added (on line 40) using the condition "if (mptr < (msg + 31))", ensuring mptr remains within the defined limits.
 
 After deploying these fuzzer testcases, we achieved:
 Coverage: 83.5% 
