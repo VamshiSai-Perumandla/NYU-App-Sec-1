@@ -1,4 +1,4 @@
-/*
+/* 
  * Gift Card Reading Application
  * Original Author: Shoddycorp's Cut-Rate Contracting
  * Comments added by: Justin Cappos (JAC) and Brendan Dolan-Gavitt (BDG)
