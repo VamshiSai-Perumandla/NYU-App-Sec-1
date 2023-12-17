@@ -1,4 +1,4 @@
-#!/usr/bin/env bash
+#!/usr/bin/env bash 
 
 # This script runs the gift card reader on the gft files found in
 # the testcases directory.  It is intended to be run from the
