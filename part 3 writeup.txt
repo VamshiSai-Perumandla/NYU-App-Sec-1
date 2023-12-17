@@ -1,4 +1,4 @@
-Homework Assignment 1: Part 3 Analysis
+Homework Assignment 1: Part 3 Analysis 
 Upon executing the testcases from Part 2, namely crash1.gft, crash2.gft, hang.gft, and example.gft, we ascertained the following code coverage:
 File: giftcardreader.c
 Coverage: 53.22% 
