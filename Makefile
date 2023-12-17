@@ -1,4 +1,4 @@
-default: giftcardreader
+default: giftcardreader 
 
 giftcardreader: giftcardreader.c giftcard.h
 	gcc -g -o giftcardreader giftcardreader.c
