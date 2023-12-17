@@ -1,4 +1,4 @@
-Test.txt of Homework Assignment 1
+Test.txt of Homework Assignment 1 
 ------------------------------------------
 This file describes about the crashes and hang cases found in the giftcardreader code.
 
