@@ -1,4 +1,4 @@
-import struct
+import struct 
 import sys
 
 # We build the content of the file in a byte string first
